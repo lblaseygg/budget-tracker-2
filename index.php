@@ -24,169 +24,271 @@ $balance = $totalIncome - $totalExpense;
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Budget Tracker</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
-    <script>
-        // Fallback if primary CDN fails
-        if (typeof Chart === 'undefined') {
-            console.log('Primary CDN failed, trying fallback...');
-            const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js';
-            script.onload = function() {
-                console.log('Fallback CDN loaded successfully');
-            };
-            script.onerror = function() {
-                console.error('Both CDNs failed to load Chart.js');
-            };
-            document.head.appendChild(script);
-        }
-    </script>
 </head>
 <body>
-<h1>Budget Tracker</h1>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="app-title">Budget Tracker</h1>
+                <p class="app-subtitle"></p>
+            </div>
+        </header>
 
-<div class="summary">
-    <p>Total Income: $<?= number_format($totalIncome, 2) ?></p>
-    <p>Total Expenses: $<?= number_format($totalExpense, 2) ?></p>
-    <p><strong>Balance: $<?= number_format($balance, 2) ?></strong></p>
-</div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Summary Cards -->
+            <section class="summary-section">
+                <div class="summary-grid">
+                    <div class="summary-card income-card">
 
-<h3>Add Transaction</h3>
-<form method="POST" action="add.php">
-    <select name="type">
-        <option value="income">Income</option>
-        <option value="expense">Expense</option>
-    </select>
-    <input type="text" name="description" placeholder="Description" required>
-    <input type="number" name="amount" step="0.01" placeholder="Amount" required>
-    <input type="date" name="date" required>
-    <button type="submit">Add</button>
-</form>
+                        <div class="card-content">
+                            <h3>Total Income</h3>
+                            <p class="amount">$<?= number_format($totalIncome, 2) ?></p>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card expense-card">
+                        
+                        <div class="card-content">
+                            <h3>Total Expenses</h3>
+                            <p class="amount">$<?= number_format($totalExpense, 2) ?></p>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card balance-card <?= $balance >= 0 ? 'positive' : 'negative' ?>">
+                        
+                        <div class="card-content">
+                            <h3>Balance</h3>
+                            <p class="amount">$<?= number_format($balance, 2) ?></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-<h3>Income vs Expense Chart</h3>
-<canvas id="budgetChart"></canvas>
+            <!-- Add Transaction Form -->
+            <section class="form-section">
+                <div class="section-header">
+                    <h2>Add Transaction</h2>
+                    <p>Record your income and expenses</p>
+                </div>
+                
+                <form method="POST" action="add.php" class="transaction-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="type">Transaction Type</label>
+                            <select name="type" id="type" required>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="amount">Amount</label>
+                            <input type="number" name="amount" id="amount" step="0.01" placeholder="0.00" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <input type="text" name="description" id="description" placeholder="What's this for?" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="date">Date</label>
+                            <input type="date" name="date" id="date" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <span>Add Transaction</span>
+                        <span class="btn-icon">→</span>
+                    </button>
+                </form>
+            </section>
 
-<h3>All Transactions</h3>
-<table>
-    <tr>
-        <th>Date</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Amount</th>
-    </tr>
-    <?php
-    $result = $conn->query("SELECT * FROM transactions ORDER BY date DESC");
-    while ($row = $result->fetch_assoc()) {
-        echo "<tr>
-                <td>{$row['date']}</td>
-                <td>{$row['type']}</td>
-                <td>{$row['description']}</td>
-                <td>$" . number_format($row['amount'], 2) . "</td>
-              </tr>";
-    }
-    ?>
-</table>
+            <!-- Chart Section -->
+            <section class="chart-section">
+                <div class="section-header">
+                    <h2>Financial Overview</h2>
+                    <p>Visualize your income vs expenses</p>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="budgetChart"></canvas>
+                </div>
+            </section>
 
-<script>
-    // Debug: Check if Chart.js loaded
-    console.log('Script loaded, Chart object:', typeof Chart);
-    
-    // Wait for Chart.js to load
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM loaded, Chart object:', typeof Chart);
+            <!-- Transactions Table -->
+            <section class="transactions-section">
+                <div class="section-header">
+                    <h2>Recent Transactions</h2>
+                    <p>Your latest financial activity</p>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $result = $conn->query("SELECT * FROM transactions ORDER BY date DESC LIMIT 10");
+                            if ($result->num_rows > 0) {
+                                while ($row = $result->fetch_assoc()) {
+                                    $typeClass = $row['type'] == 'income' ? 'income-row' : 'expense-row';
+                                    echo "<tr class='{$typeClass}'>
+                                            <td>" . date('M j', strtotime($row['date'])) . "</td>
+                                            <td>{$row['description']}</td>
+                                            <td><span class='type-badge {$row['type']}'>{$row['type']}</span></td>
+                                            <td class='amount-cell'>$" . number_format($row['amount'], 2) . "</td>
+                                          </tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='4' class='no-data'>
+                                        <div class='empty-state'>
+                                            <span class='empty-icon'>📝</span>
+                                            <p>No transactions yet. Add your first one above!</p>
+                                        </div>
+                                      </td></tr>";
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Set default date to today
+        document.getElementById('date').valueAsDate = new Date();
         
-        // Check if Chart.js is available
-        if (typeof Chart === 'undefined') {
-            console.error('Chart.js failed to load');
-            document.getElementById('budgetChart').innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Chart.js failed to load. Please refresh the page.</p>';
-            return;
-        }
-
-        try {
-            const ctx = document.getElementById('budgetChart').getContext('2d');
-            
-            // Check if we have data to display
-            const labels = <?= json_encode(array_reverse($chartLabels)) ?>;
-            const incomeData = <?= json_encode(array_reverse($chartIncome)) ?>.map(Number);
-            const expenseData = <?= json_encode(array_reverse($chartExpense)) ?>.map(Number);
-            
-            if (labels.length === 0) {
-                document.getElementById('budgetChart').innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No data available for chart. Add some transactions to see your financial overview!</p>';
+        // Chart configuration
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js failed to load');
+                document.getElementById('budgetChart').innerHTML = '<div class="chart-error"><p>Chart.js failed to load. Please refresh the page.</p></div>';
                 return;
             }
 
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Income',
-                            data: incomeData,
-                            borderColor: '#10B981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            fill: true,
-                            tension: 0.4,
-                            pointBackgroundColor: '#10B981',
-                            pointBorderColor: '#ffffff',
-                            pointBorderWidth: 2
-                        },
-                        {
-                            label: 'Expenses',
-                            data: expenseData,
-                            borderColor: '#EF4444',
-                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                            pointBackgroundColor: '#EF4444',
-                            pointBorderColor: '#ffffff',
-                            pointBorderWidth: 2
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20
+            try {
+                const ctx = document.getElementById('budgetChart').getContext('2d');
+                
+                const labels = <?= json_encode(array_reverse($chartLabels)) ?>;
+                const incomeData = <?= json_encode(array_reverse($chartIncome)) ?>.map(Number);
+                const expenseData = <?= json_encode(array_reverse($chartExpense)) ?>.map(Number);
+                
+                if (labels.length === 0) {
+                    document.getElementById('budgetChart').innerHTML = '<div class="chart-empty"><p>No data available. Add some transactions to see your financial overview!</p></div>';
+                    return;
+                }
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Income',
+                                data: incomeData,
+                                backgroundColor: '#10B981',
+                                borderColor: '#10B981',
+                                borderWidth: 0,
+                                borderRadius: 6,
+                                borderSkipped: false
+                            },
+                            {
+                                label: 'Expenses',
+                                data: expenseData,
+                                backgroundColor: '#EF4444',
+                                borderColor: '#EF4444',
+                                borderWidth: 0,
+                                borderRadius: 6,
+                                borderSkipped: false
                             }
-                        }
+                        ]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                align: 'center',
+                                labels: {
+                                    boxWidth: 20,
+                                    boxHeight: 12,
+                                    padding: 20,
+                                    font: {
+                                        size: 14,
+                                        family: 'Inter, sans-serif',
+                                        weight: '500'
+                                    },
+                                    usePointStyle: false
+                                }
                             }
                         },
-                        x: {
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: '#f1f5f9',
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 12,
+                                        family: 'Inter, sans-serif'
+                                    },
+                                    padding: 10,
+                                    color: '#64748b'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 12,
+                                        family: 'Inter, sans-serif'
+                                    },
+                                    padding: 10,
+                                    color: '#64748b'
+                                }
                             }
-                        }
-                    },
-                    elements: {
-                        point: {
-                            radius: 4,
-                            hoverRadius: 6
+                        },
+                        layout: {
+                            padding: {
+                                top: 30,
+                                bottom: 20,
+                                left: 20,
+                                right: 20
+                            }
                         }
                     }
-                }
-            });
-            
-            console.log('Chart created successfully');
-            console.log('Chart data:', { labels, incomeData, expenseData });
-        } catch (error) {
-            console.error('Error creating chart:', error);
-            document.getElementById('budgetChart').innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Error creating chart: ' + error.message + '</p>';
-        }
-    });
-</script>
-
+                });
+                
+                console.log('Chart created successfully');
+            } catch (error) {
+                console.error('Error creating chart:', error);
+                document.getElementById('budgetChart').innerHTML = '<div class="chart-error"><p>Error creating chart. Please refresh the page.</p></div>';
+            }
+        });
+    </script>
 </body>
 </html>
