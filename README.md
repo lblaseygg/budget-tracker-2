@@ -22,11 +22,7 @@ This is a **learning project** designed to:
 
 ## 🎨 Design Highlights
 
-- **Gradient Background**: Beautiful purple-blue gradient background
-- **Card-based Layout**: Clean white cards with subtle shadows and rounded corners
-- **Color-coded Elements**: Green for income, red for expenses, blue for balance
-- **Smooth Animations**: Hover effects and smooth transitions throughout
-- **Modern Icons**: Emoji icons for visual appeal and quick recognition
+- **Color-coded Elements**: Green for income, red for expenses
 - **Responsive Grid**: Adaptive layout that works on all screen sizes
 
 ## 🚀 Getting Started
