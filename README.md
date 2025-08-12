@@ -1,4 +1,4 @@
-# 💰 Modern Budget Tracker
+# 💰 BudgetBuddy a modern Budget Tracker
 
 A **practice project** to implement and reinforce what I have learned about PHP. This budget tracking application demonstrates my understanding of PHP fundamentals, MySQL database operations, and modern web development practices.
 
